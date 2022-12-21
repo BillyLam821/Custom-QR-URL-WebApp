@@ -3,12 +3,7 @@ import qrcode
 from PIL import Image
 
 def create_qr(url, code, QRcolor, Backcolor, logo_file=None):
-    # taking image which user wants
-    # in the QR code center
-    # Logo_link = 'urlshort/static/g4g.jpeg'
-    # Logo_link = 'head.png'
     
-    # logo = Image.open(Logo_link)
     QRcode = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H
     )
@@ -18,9 +13,6 @@ def create_qr(url, code, QRcolor, Backcolor, logo_file=None):
     
     # generating QR code
     QRcode.make()
-    
-    # taking color name from user
-    
 
     # adding color to QR code
     QRimg = QRcode.make_image(
@@ -49,5 +41,3 @@ def create_qr(url, code, QRcolor, Backcolor, logo_file=None):
     save_name = code + ".png"
     QRimg.save('urlshort/static/user_files/qr/' + save_name)
     return save_name
- 
-# print('QR code generated!')
