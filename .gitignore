@@ -1,0 +1,6 @@
+.DS_Store
+urlshort/__pycache__
+urlshort/static/user_files
+.pytest_cache
+note.txt
+urls.json
