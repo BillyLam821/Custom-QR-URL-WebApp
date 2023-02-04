@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}
+URL Shortener
+{% endblock %}
+
+{% block main %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+        <div class="alert {{ category }}"> {{ message|capitalize }} </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form id="homeForm" action="your-url" method="POST" enctype="multipart/form-data">
+        <label for="appSelect">App</label>
+        <select class="custom-select" id="appSelect" name="appSelect">
+            <!-- <option selected>-- Please select app type --</option> -->
+            <option value="qrApp" selected>QR Code Generator</option>
+            <option value="urlApp">URL Shortener</option>
+        </select>
+
+        <label>Target Type</label>
+        <select class="custom-select" id="targetSelect" name="targetSelect">
+            <!-- <option selected>-- Please select target type --</option> -->
+            <option value="webTarget" selected>Website</option>
+            <option value="fileTarget">File</option>
+        </select>
+
+        <div id="urlForm">
+            <label for="url">Website URL</label>
+            <input type="url" class="form-control" name="url" value="" placeholder="E.g. https://www.google.com">
+        </div>
+        
+        <div id="fileForm">
+            <label for="file">File</label>
+            <input type="file" class="form-control" name="file" value="">
+        </div>
+
+        <div id="qrForm">
+            <fieldset>
+                <label for="qrColor" class="form-label">QR Code Color</i></label>
+                <input type="color" class="form-control form-control-color" id="qrColor" name="qrColor" value="#000000">
+                <label for="qrBackColor" class="form-label">QR Code Back Color</i></label>
+                <input type="color" class="form-control form-control-color" id="qrBackColor" name="qrBackColor" value="#FFFFFF">
+                <i class="fa-solid fa-qrcode"></i>
+            </fieldset>
+            <label for="qrLogo">QR Code Logo<span class="hint">&nbsp;(optional)</span></label>
+            <input type="file" class="form-control" name="qrLogo" value="">
+        </div>
+
+        <label for="code">Short Name</label>
+        <input type="text" class="form-control" name="code" value="" required placeholder="E.g. goo">
+
+        <input type="submit" class="btn btn-primary" value="Create">
+        <input type="reset" class="btn btn-secondary" value="Reset">
+    </form>
+
+    {% if codes %}
+    <div id="sessionContainer">
+        <h5>Codes you have created:</h5>
+        <p class="hint">&nbsp;(You can copy the shortened URLs embedded in code column)</p>
+        <table class="table">
+            <tr>
+                <th>Code</th>
+                <th>App</th>
+                <th>Target</th>
+            </tr>
+            {% print(codes) %}
+            {% for code, value in codes %}
+            <tr>
+                <td><a href="{{ url_for('urlshort.redirect_to_url', code=code) }}">{{ code }}</a></td>
+                {% print(code) %}
+                {% print(value) %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+{% endblock %}

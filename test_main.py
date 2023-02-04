@@ -1,4 +1,4 @@
-from urlshort import create_app
+from src import create_app
 
 # test if shorten can be found
 def test_shorten(client):
