@@ -1,15 +1,10 @@
-from flask import render_template, request, redirect, url_for, flash, abort, session, jsonify, Blueprint
+from flask import render_template, redirect, url_for, flash, Blueprint
 from werkzeug.security import check_password_hash, generate_password_hash
-import sys, json, os.path
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from werkzeug.utils import secure_filename
-from src.qr import create_qr
+from flask_login import login_user, login_required, logout_user
 from src.auth_forms import LoginForm, RegisterForm
 from src.database import db, User
-from flask_bcrypt import Bcrypt
 
 bp = Blueprint('auth', __name__, static_folder='static', template_folder='templates', url_prefix="/auth")
-
 
 @bp.route('/', methods=['GET','POST'])
 def home():

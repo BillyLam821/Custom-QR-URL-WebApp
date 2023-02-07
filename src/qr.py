@@ -1,4 +1,3 @@
-# import modules
 import qrcode
 from PIL import Image
 
