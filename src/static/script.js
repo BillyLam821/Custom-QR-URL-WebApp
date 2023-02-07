@@ -21,33 +21,27 @@ if (document.querySelector("#homeForm")) {
     // qrForm.style.display = "none";
 
     selectedApp.addEventListener("change", function() {
-        if (selectedApp.value == "urlApp") {
+        if (selectedApp.value == "URL Shortener") {
             qrForm.style.display = "none";
 
-        } else if (selectedApp.value == "qrApp") {
+        } else if (selectedApp.value == "QR Code Generator") {
             qrForm.style.display = "block";
         }
     })
 
     selectedTarget.addEventListener("change", function() {
+        if (selectedTarget.value == "Website") {
+            urlForm.style.display = "block";
+            fileForm.style.display = "none";
+            urlInput.required = true;
+            fileInput.required = false;
 
-        // if (selectedApp.value == "urlApp") {
-
-            if (selectedTarget.value == "webTarget") {
-                urlForm.style.display = "block";
-                fileForm.style.display = "none";
-                urlInput.required = true;
-                fileInput.required = false;
-
-            } else if (selectedTarget.value == "fileTarget") {
-                urlForm.style.display = "none";
-                fileForm.style.display = "block";
-                urlInput.required = false;
-                fileInput.required = true;
-                
-            }
-        // }
-
+        } else if (selectedTarget.value == "File") {
+            urlForm.style.display = "none";
+            fileForm.style.display = "block";
+            urlInput.required = false;
+            fileInput.required = true;
+        }
     })
 
 
@@ -67,7 +61,7 @@ if (document.querySelector("#homeForm")) {
         console.log(qrBackColor.value);
     })
     
-}
+} // End of Home
 
 
 // Auth
@@ -101,18 +95,4 @@ if (document.querySelector(".authForm")) { // add onchange
         signForm.style.display = "none";
     })
 
-    // highlight current page in nav bar
-//     document.querySelector("#authNav").classList.toggle("active");
-//     document.querySelector("#signSubmit").addEventListener('click', (e) => {
-//         e.preventDefault();
-//     })
-
-//     document.querySelector("#regSubmit").addEventListener('click', (e) => {
-//         e.preventDefault();
-//     })
-
-//     function handleForm(e) {
-//         e.preventDefault();
-//         console.log("test")
-//    }
-}
+} // End of Auth

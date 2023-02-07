@@ -1,8 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
-import string
-import random
 
 db = SQLAlchemy()
 
@@ -20,11 +18,10 @@ class User(db.Model, UserMixin):
 
 class Shorts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    original_url = db.Column(db.Text, nullable=True)
-    short_name = db.Column(db.String(3), nullable=True)
-    qr = db.Column(db.Text, nullable=True)
-    file = db.Column(db.Text, nullable=True)
-    visits = db.Column(db.Integer, default=0)
+    app = db.Column(db.String(30), nullable=False)
+    target = db.Column(db.String(10), nullable=False)
+    original_url = db.Column(db.Text, nullable=False)
+    short_name = db.Column(db.String(3), nullable=False)
     last_visit = db.Column(db.DateTime, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.DateTime, default=datetime.now())

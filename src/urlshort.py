@@ -1,75 +1,69 @@
 from flask import render_template, request, redirect, url_for, flash, abort, session, jsonify, Blueprint
-import sys, json, os.path
 from werkzeug.utils import secure_filename
 from src.qr import create_qr
+from src.database import db, Shorts
 
 bp = Blueprint('urlshort', __name__, static_folder='static', template_folder='templates')
 
 @bp.route('/')
 def home():
     # session.clear()
-    return render_template('home.html', codes=session.items()) ###
+    return render_template('home.html', codes=session) ###
 
-# route only allow GET request
-# GET = type in, POST = form submission
+# Subsequence Page for Generator
 @bp.route('/your-url', methods=['GET','POST'])
 def your_url():
-    
+
     if request.method == 'POST':
 
-        urls = {}
-
-        if os.path.exists('src/urls.json'):
-            with open('src/urls.json') as urls_file:
-                urls = json.load(urls_file)
-
-        if request.form['code'] in urls.keys():
+        # check if short name exists
+        code = Shorts.query.filter_by(short_name = request.form['code']).first()
+        if code:
             flash('* That short name has already been taken. Please select another name. *')
             return redirect(url_for('urlshort.home'))
 
-        # check URL or file 
-        if request.form['targetSelect'] == 'webTarget':
-            targetName = 'website'
-            urls[request.form['code']] = {'url': request.form['url']}
-            session[request.form['code']] = {'url': request.form['url']} ###
-            new_url = request.base_url + request.form['code']
+        # get form variables
+        short_name = request.form['code']
+        app_name = request.form['appSelect']
+        targetName = request.form['targetSelect']
+        session[short_name] = {"app": app_name, "target": targetName}
 
-        elif request.form['targetSelect'] == 'fileTarget':
-            targetName = 'file'
+        # handle target (website / file)
+        if targetName == 'Website':
+            original_url = request.form['url']
+            
+
+        elif targetName == 'File':
             file = request.files['file']
-            filename = secure_filename(file.filename)
-            file.save(os.path.join('urlshort/static/user_files/' + filename))
-            urls[request.form['code']] = {'file': filename}
-            session[request.form['code']] = {'file': filename} ###
-            new_url = request.base_url + filename
-        
-        # created by user
-        with open('src/urls.json', 'w') as url_file:
-            json.dump(urls, url_file) # save dict into file
-            # session[request.form['code']] = True
+            filename = short_name + secure_filename(file.filename)
+            file.save('src/static/user_files/' + filename)
+            original_url = 'user_files/' + filename
 
-        if request.form['appSelect'] == "urlApp":
-            return render_template('yourURL.html', appName='URL', targetName=targetName, code=request.form['code'])
+        # set new_QR default value as None
+        new_QR = None
 
-        elif request.form['appSelect'] == 'qrApp':
+        # QR app section
+        # short URL redirect to QR code file
+        # scanning QR code redirect to original website
+        if app_name == 'QR Code Generator':
 
-            if request.files['qrLogo']:
-                new_qr = create_qr(new_url, request.form['code'], request.form['qrColor'], 
-                                    request.form['qrBackColor'], request.files['qrLogo'])
+            qr_logo = request.files['qrLogo']
+            if qr_logo.filename == '':
+                qr_logo = None
                 
-            else:
-                new_qr = create_qr(new_url, request.form['code'], request.form['qrColor'], 
-                                    request.form['qrBackColor'])
-                
-            urls[request.form['code']]['qr'] = new_qr
-            with open('src/urls.json', 'w') as url_file:
-                json.dump(urls, url_file)
-                # session[request.form['code']] = True
-                session[request.form['code']] = {'qr': new_qr} ###
-                # session[request.form['code']] = ('qr', new_qr) ###
+            new_QR = create_qr(original_url, short_name, request.form['qrColor'], 
+                                request.form['qrBackColor'], qr_logo)
 
-            return render_template('yourURL.html', appName='QR code', targetName=targetName, code=request.form['code'], new_QR=new_qr)
-        
+            original_url = 'user_files/qr/' + new_QR
+
+        session[short_name]["original_url"] = original_url
+
+        # add data to db
+        shortURL = Shorts(target=targetName, app=app_name, original_url=original_url, short_name=short_name) ###working here
+        db.session.add(shortURL)
+        db.session.commit()
+        return render_template('yourURL.html', appName=app_name, targetName=targetName, code=short_name, new_QR=new_QR)
+
     else: #GET
         return redirect(url_for('urlshort.home'))
 
@@ -77,27 +71,23 @@ def your_url():
 @bp.route('/<string:code>')
 def redirect_to_url(code):
 
-    if os.path.exists('src/urls.json'):
+    if Shorts.query.filter_by(short_name = code).first():
 
-        with open('src/urls.json') as urls_file:
-            urls = json.load(urls_file)
+        fetch_result = Shorts.query.filter_by(short_name = code).first()
+        redirect_url = fetch_result.original_url
 
-            if code in urls.keys():
-                
-                if 'qr' in urls[code].keys():
-                    return redirect(url_for('static', filename='user_files/qr/' + urls[code]['qr']))
-
-                elif 'url' in urls[code].keys():
-                    return redirect(urls[code]['url'])
-
-                else:
-                    return redirect(url_for('static', filename='user_files/' + urls[code]['file']))
+        if fetch_result.app == 'QR Code Generator' or fetch_result.target == 'File':
+            return redirect(url_for('static', filename = redirect_url))
+        else:
+            return redirect(redirect_url)
 
     return abort(404)
     
+
 @bp.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
 
 @bp.route('/api')
 def session_api():

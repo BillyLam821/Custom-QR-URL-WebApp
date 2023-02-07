@@ -39,5 +39,5 @@ def create_qr(url, code, QRcolor, Backcolor, logo_file=None):
     
     # save the QR code generated
     save_name = code + ".png"
-    QRimg.save('urlshort/static/user_files/qr/' + save_name)
+    QRimg.save('src/static/user_files/qr/' + save_name)
     return save_name

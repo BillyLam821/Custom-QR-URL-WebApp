@@ -18,15 +18,15 @@ URL Shortener
         <label for="appSelect">App</label>
         <select class="custom-select" id="appSelect" name="appSelect">
             <!-- <option selected>-- Please select app type --</option> -->
-            <option value="qrApp" selected>QR Code Generator</option>
-            <option value="urlApp">URL Shortener</option>
+            <option value="QR Code Generator" selected>QR Code Generator</option>
+            <option value="URL Shortener">URL Shortener</option>
         </select>
 
         <label>Target Type</label>
         <select class="custom-select" id="targetSelect" name="targetSelect">
             <!-- <option selected>-- Please select target type --</option> -->
-            <option value="webTarget" selected>Website</option>
-            <option value="fileTarget">File</option>
+            <option value="Website" selected>Website</option>
+            <option value="File">File</option>
         </select>
 
         <div id="urlForm">
@@ -68,13 +68,14 @@ URL Shortener
                 <th>App</th>
                 <th>Target</th>
             </tr>
-            {% print(codes) %}
-            {% for code, value in codes %}
-            <tr>
-                <td><a href="{{ url_for('urlshort.redirect_to_url', code=code) }}">{{ code }}</a></td>
-                {% print(code) %}
-                {% print(value) %}
-            </tr>
+            {% for code, value in codes.items() %}
+                {% if code != '_fresh' %}
+                    <tr>
+                        <td><a href="{{ url_for('urlshort.redirect_to_url', code=code) }}">{{ code }}</a></td>
+                        <td>{{ value.app }}</td>
+                        <td>{{ value.target }}</td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </table>
     </div>
